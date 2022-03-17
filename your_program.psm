@@ -1,0 +1,61 @@
+;puertos del UART
+		CONSTANT PuertoLeeListoTX,    11
+		CONSTANT PuertoEscribeDatoTX, 12
+		CONSTANT PuertoLeeDatoRX,     13
+		CONSTANT PuertoDatoListoRX,   14
+		CONSTANT PuertoDatoRXLeido,   15
+		;
+;puertos del spi
+		CONSTANT PuertoLeeXLSB, 41
+		CONSTANT PuertoLeeXMSB, 42
+		CONSTANT PuertoLeeYLSB, 43
+		CONSTANT PuertoLeeYMSB, 44
+		CONSTANT PuertoLeeZLSB, 45
+		CONSTANT PuertoLeeZMSB, 46
+		;
+		NAMEREG s3, DatoAccess
+		NAMEREG s6, DatoSerial
+		NAMEREG s7, EstadoTX
+		;NAMEREG sB, DatoPrueba
+		;
+start:
+		;leemos el dato LSB del eje x del accel
+		INPUT		DatoAccess, PuertoLeeXLSB
+		LOAD		DatoSerial, DatoAccess
+		CALL		tx_uart
+		CALL		delay_1s
+    ;leemos el dato MSB del eje x del accel
+    INPUT		DatoAccess, PuertoLeeXMSB
+    LOAD		DatoSerial, DatoAccess
+    CALL		tx_uart
+    CALL		delay_1s
+
+tx_uart:
+    INPUT		EstadoTX, PuertoLeeListoTX
+    COMPARE		EstadoTX, 01
+    JUMP		Z, tx_uart
+    OUTPUT		DatoSerial, PuertoEscribeDatoTX
+    CALL    delay_1s
+    ;CALL    delay_1s
+    ;CALL    delay_1s
+    RETURN
+
+    JUMP start
+    ;
+
+delay_1s:
+		LOAD s2, BE
+		LOAD s1, BC
+		LOAD s0, 20
+delay_loop:
+		SUB 		s0, 1'd
+		SUBCY 		s1, 0'd
+		SUBCY 		s2, 0'd
+		JUMP 		NZ, delay_loop
+		RETURN
+		;
+
+
+
+;
+;
